@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp">
+
+    <android.support.v7.widget.CardView
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="false"
+        android:layout_width="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/server_name_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/server_name"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                android:textAlignment="viewStart"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#ffffff"
+                android:background="@color/colorPrimary"
+                android:padding="16dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/server_status" />
+
+            <TextView
+                android:text="@string/channels_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/channels_view"
+                android:padding="16dp"
+                android:layout_below="@+id/server_name"
+                android:layout_alignParentStart="true"
+                android:textSize="18sp"
+                android:layout_alignEnd="@+id/nick_view"
+                android:textAlignment="textStart" />
+
+            <TextView
+                android:text="@string/nickname_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/nick_view"
+                android:textSize="18sp"
+                android:layout_below="@+id/channels_view"
+                android:layout_alignParentStart="true"
+                android:padding="16dp"
+                android:textAlignment="textStart" />
+
+            <ImageView
+                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                app:srcCompat="@drawable/ic_error_24dp"
+                android:id="@+id/server_status"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_above="@+id/channels_view"
+                android:background="@color/colorPrimary"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:text="@string/channel_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/nick_view"
+                android:layout_toEndOf="@+id/channels_view"
+                android:id="@+id/list_channels"
+                android:textSize="18sp"
+                android:layout_alignBaseline="@+id/channels_view"
+                android:padding="16dp"
+                android:paddingStart="0dp"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:text="@string/nick_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:layout_toEndOf="@+id/nick_view"
+                android:id="@+id/list_nick"
+                android:textSize="18sp"
+                android:padding="16dp"
+                android:paddingStart="0dp"
+                android:layout_alignBaseline="@+id/nick_view"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>
