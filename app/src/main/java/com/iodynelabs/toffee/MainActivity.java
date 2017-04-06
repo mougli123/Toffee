@@ -123,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
     private void onRefreshComplete(List<Server> result) {
         Log.i(LOG_TAG, "onRefreshComplete");
 
-
+        mData = result;
+        mAdapter.notifyDataSetChanged();
 
         // Stop the refreshing indicator
         setRefreshing(false);
@@ -141,9 +142,22 @@ public class MainActivity extends AppCompatActivity {
     // TODO: Implement server status checks
     private class CheckServerStatus extends AsyncTask<Void, Void, List<Server>>{
 
+        static final int TASK_DURATION = 3 * 1000; // 3 seconds
+
         @Override
         protected List<Server> doInBackground(Void... voids) {
-            return null;
+            // Sleep for a small amount of time to simulate a background-task
+            try {
+                Thread.sleep(TASK_DURATION);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            List<Server> temp = mData;
+            for (int i = 0; i < temp.size(); i++){
+                temp.get(i).setStatus(!temp.get(i).getStatus());
+            }
+            return temp;
         }
 
         @Override
