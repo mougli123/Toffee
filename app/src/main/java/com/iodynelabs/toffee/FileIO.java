@@ -9,7 +9,14 @@ import io.paperdb.Paper;
  * Class for handling any File access operations
  */
 class FileIO {
+    /**
+     * Tag used for accessing the server list
+     */
     private static String SERVER_ID = "servers";
+
+    /**
+     * Tag used for accessing book
+     */
     private static String BOOK_ID = "book";
 
     /**
