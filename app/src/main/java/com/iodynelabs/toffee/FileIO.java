@@ -5,10 +5,6 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
-/**
- * Created by Alejandro on 4/7/2017.
- */
-
 class FileIO {
     private static String SERVER_ID = "servers";
     private static String BOOK_ID = "book";

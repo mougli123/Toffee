@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Alejandro on 4/5/2017.
- */
-
-/**
  * Container class to house server information such as name and channels
  */
 public class Server implements Parcelable{
@@ -35,13 +31,13 @@ public class Server implements Parcelable{
      * Create new server with the specified name
      * @param name Name of the server, will be used for connecting
      */
-    public Server(String name, String nick){
+    Server(String name, String nick) {
         channels = new ArrayList<>();
         serverName = name;
         nickname = nick;
     }
 
-    protected Server(Parcel in) {
+    Server(Parcel in) {
         channels = new ArrayList<>();
         in.readTypedList(channels, Channel.CREATOR);
         serverName = in.readString();
@@ -52,7 +48,7 @@ public class Server implements Parcelable{
     /**
      * @return Current nickname for server
      */
-    public String getNickname() {
+    String getNickname() {
         return nickname;
     }
 
@@ -68,7 +64,7 @@ public class Server implements Parcelable{
      *
      * @return Name of the server
      */
-    public String getServerName() {
+    String getServerName() {
         return serverName;
     }
 
@@ -85,7 +81,7 @@ public class Server implements Parcelable{
      * @param name The name of the channel.
      *             If it doesn't have '#' as the first character, it will be inserted and the name will be converted to lowercase for consistency
      */
-    public void addChannel(String name){
+    void addChannel(String name) {
         if (!name.substring(0,1).equals("#"))
             name = "#" + name;
         channels.add(new Channel(name.toLowerCase()));
@@ -94,7 +90,7 @@ public class Server implements Parcelable{
     /**
      * Update the list of channels all at once
      */
-    public void setChannels(List<Channel> channelList) {
+    void setChannels(List<Channel> channelList) {
         this.channels = channelList;
     }
 
@@ -102,14 +98,14 @@ public class Server implements Parcelable{
      *
      * @return List of channels in server
      */
-    public List<Channel> getChannelList(){
+    List<Channel> getChannelList() {
         return channels;
     }
 
     /**
      * Get channel at the specified index
      */
-    public Channel getChannel(int index){
+    Channel getChannel(int index) {
         return channels.get(index);
     }
     /**
@@ -133,7 +129,7 @@ public class Server implements Parcelable{
      *
      * @param status Status to set to
      */
-    public void setStatus(boolean status) {
+    void setStatus(boolean status) {
         this.status = status;
     }
 

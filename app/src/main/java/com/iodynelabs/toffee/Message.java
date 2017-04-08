@@ -1,10 +1,6 @@
 package com.iodynelabs.toffee;
 
 /**
- * Created by Alejandro on 4/7/2017.
- */
-
-/**
  * Data class for storing a message.
  */
 public class Message {

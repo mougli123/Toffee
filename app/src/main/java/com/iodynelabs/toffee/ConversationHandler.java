@@ -1,9 +1,5 @@
 package com.iodynelabs.toffee;
 
-/**
- * Created by Alejandro on 4/7/2017.
- */
-
 import android.util.Log;
 
 import org.pircbotx.Configuration;
