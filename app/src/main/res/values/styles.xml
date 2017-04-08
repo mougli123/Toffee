@@ -25,10 +25,5 @@
         <!-- Tints the input fields like checkboxes and text fields -->
         <item name="colorAccent">@color/colorAccent</item>
 
-        <!-- Enable these below if you want clicking icons to trigger a ripple effect -->
-        <!--
-        <item name="selectableItemBackground">?android:selectableItemBackground</item>
-        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
-        -->
     </style>
 </resources>

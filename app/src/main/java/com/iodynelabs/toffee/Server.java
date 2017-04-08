@@ -15,6 +15,17 @@ import java.util.List;
  */
 public class Server implements Parcelable{
 
+    public static final Creator<Server> CREATOR = new Creator<Server>() {
+        @Override
+        public Server createFromParcel(Parcel in) {
+            return new Server(in);
+        }
+
+        @Override
+        public Server[] newArray(int size) {
+            return new Server[size];
+        }
+    };
     private String serverName;
     private List<Channel> channels;
     private boolean status;
@@ -38,17 +49,12 @@ public class Server implements Parcelable{
         nickname = in.readString();
     }
 
-    public static final Creator<Server> CREATOR = new Creator<Server>() {
-        @Override
-        public Server createFromParcel(Parcel in) {
-            return new Server(in);
-        }
-
-        @Override
-        public Server[] newArray(int size) {
-            return new Server[size];
-        }
-    };
+    /**
+     * @return Current nickname for server
+     */
+    public String getNickname() {
+        return nickname;
+    }
 
     /**
      * Set nickname after creating
@@ -60,10 +66,10 @@ public class Server implements Parcelable{
 
     /**
      *
-     * @return Current nickname for server
+     * @return Name of the server
      */
-    public String getNickname(){
-        return nickname;
+    public String getServerName() {
+        return serverName;
     }
 
     /**
@@ -75,14 +81,6 @@ public class Server implements Parcelable{
     }
 
     /**
-     *
-     * @return Name of the server
-     */
-    public String getServerName(){
-        return serverName;
-    }
-
-    /**
      * Add a channel to the current server
      * @param name The name of the channel.
      *             If it doesn't have '#' as the first character, it will be inserted and the name will be converted to lowercase for consistency
@@ -90,7 +88,14 @@ public class Server implements Parcelable{
     public void addChannel(String name){
         if (!name.substring(0,1).equals("#"))
             name = "#" + name;
-        channels.add(new Channel(this, name.toLowerCase()));
+        channels.add(new Channel(name.toLowerCase()));
+    }
+
+    /**
+     * Update the list of channels all at once
+     */
+    public void setChannels(List<Channel> channelList) {
+        this.channels = channelList;
     }
 
     /**
@@ -116,19 +121,20 @@ public class Server implements Parcelable{
     }
 
     /**
-     * Set current server status: true=live, false=error
-     * @param status Status to set to
-     */
-    public void setStatus(boolean status){
-        this.status = status;
-    }
-
-    /**
      *
      * @return Server status: true=live, false=error
      */
     public boolean getStatus(){
         return status;
+    }
+
+    /**
+     * Set current server status: true=live, false=error
+     *
+     * @param status Status to set to
+     */
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     @Override

@@ -1,45 +1,50 @@
 package com.iodynelabs.toffee;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import org.pircbotx.Configuration;
-import org.pircbotx.PircBotX;
-import org.pircbotx.exception.IrcException;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity {
+    /**
+     * Tag used for debug messages.
+     */
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private RecyclerView mRecyclerView;
+    /**
+     * Controls the server list layout.
+     */
     private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    /**
+     * Text that prompts the user to add servers if none are added.
+     */
     private TextView noneAdded;
 
+    /**
+     * The list of servers.
+     */
     private List<Server> mData;
 
+    /**
+     * Called when the program starts for the first time.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,49 +56,115 @@ public class MainActivity extends AppCompatActivity {
 
         noneAdded = (TextView) findViewById(R.id.none_added);
 
-        mData = new ArrayList<>();
-        if (mData.size() == 0) noneAdded.setVisibility(View.VISIBLE);
+        mData = FileIO.readServers();
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.server_recyclerView);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.server_recyclerView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
+        // specify an adapter
         mAdapter = new ServerListAdapter(mData);
         mRecyclerView.setAdapter(mAdapter);
 
-
-        mRecyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
+        updateAdapter();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_server_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
+                addServer();
             }
         });
 
-        createTestingData();
+        //createTestingData();
 
     }
 
+    /**
+     * Add a server to the lsit of servers and update the UI accordingly.
+     */
+    private void addServer() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Get the layout inflater
+        LayoutInflater inflater = getLayoutInflater();
+
+        builder.setTitle("Add Server");
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        builder.setView(inflater.inflate(R.layout.add_server_dialog, null))
+                // Add action buttons
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null);
+
+
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialogInterface) {
+                Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        EditText ipField = (EditText) alertDialog.findViewById(R.id.ip_input);
+                        EditText nickField = (EditText) alertDialog.findViewById(R.id.nick_input);
+                        if (!ipField.getText().toString().equals("")) {
+                            ipField.getBackground().clearColorFilter();
+                            if (!nickField.getText().toString().equals("")) {
+                                nickField.getBackground().clearColorFilter();
+                                mData.add(new Server(ipField.getText().toString(), nickField.getText().toString()));
+                                FileIO.storeServers(mData);
+                                updateAdapter();
+                                alertDialog.dismiss();
+                            } else
+                                nickField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+
+                        } else
+                            ipField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                    }
+                });
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    /**
+     * Update the internal list of servers to reflect any changes.
+     */
+    public void updateFiles() {
+        mData.clear();
+        List<Server> data = FileIO.readServers();
+        for (Server s : data)
+            mData.add(s);
+        updateAdapter();
+    }
+
+    /**
+     * Update the list of servers to reflect any changes.
+     */
+    private void updateAdapter() {
+        mAdapter.notifyDataSetChanged();
+        if (mData.size() == 0)
+            noneAdded.setVisibility(View.VISIBLE);
+        else
+            noneAdded.setVisibility(View.GONE);
+    }
+
+    /**
+     * Unused in final operation, but would be used for creating testing data to test how the layout looks.
+     */
     private void createTestingData(){
         Server te = new Server("192.168.21.115", "Sylver");
+        //Server te = new Server("irc.caffie.net", "Sylver");
+        //te.addChannel("smwc");
         te.addChannel("woot");
-        Log.w(LOG_TAG, "Channels: " + te.getChannelCount());
+
         mData.add(te);
         for (int i = 0; i < 10; i++){
             Server t = new Server("Server " + i, "Sylver" + i);
@@ -103,50 +174,46 @@ public class MainActivity extends AppCompatActivity {
             t.setStatus((int)(Math.random()*2) == 1);
             mData.add(t);
         }
-        noneAdded.setVisibility(View.GONE);
-        mAdapter.notifyDataSetChanged();
+        updateAdapter();
     }
 
+    /**
+     * Delete a server at the specified position.
+     */
+    private void removeServer(final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Delete Server?")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mData.remove(position);
+                        updateAdapter();
+
+                        FileIO.storeServers(mData);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        builder.create().show();
+    }
+
+    /**
+     * Called when screen becomes visible again. Used for updating the list of channels after they've been modified in the channels screen.
+     */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_screen_menu, menu);
-        return true;
+    protected void onRestart() {
+        super.onRestart();
+        updateFiles();
+        Log.w(LOG_TAG, "onRestart");
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                Log.i(LOG_TAG, "Refresh menu item selected");
-
-                return true;
-        }
-*/
-        return super.onOptionsItemSelected(item);
-    }
-
+    /**
+     * Adapter for managing the look of the server list.
+     */
     private class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.ViewHolder> {
-
         private List<Server> mDataset;
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            // each data item is just a string in this case
-            TextView serverName;
-            TextView channels;
-            TextView nickname;
-            ImageView serverStatus;
-
-            Server server;
-            View mView;
-
-            ViewHolder(View view) {
-                super(view);
-                mView = view;
-                serverName = (TextView) view.findViewById(R.id.server_name);
-                nickname = (TextView) view.findViewById(R.id.list_nick);
-            }
-        }
 
         ServerListAdapter(List<Server> data){
             mDataset = data;
@@ -167,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.serverName.setText(mDataset.get(position).getServerName());
             //holder.channels.setText(""+mDataset.get(position).getChannelCount());
             holder.nickname.setText(mDataset.get(position).getNickname());
@@ -186,12 +253,35 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
+
+            holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    removeServer(position);
+                    return false;
+                }
+            });
         }
 
         // Return the size of your dataset (invoked by the layout manager)
         @Override
         public int getItemCount() {
             return mDataset.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView serverName;
+            TextView nickname;
+
+            Server server;
+            View mView;
+
+            ViewHolder(View view) {
+                super(view);
+                mView = view;
+                serverName = (TextView) view.findViewById(R.id.server_name);
+                nickname = (TextView) view.findViewById(R.id.list_nick);
+            }
         }
     }
 }

@@ -7,4 +7,11 @@
     <string name="nick_placeholder">SuperCoolNickName</string>
     <string name="title_channel_list">Channels</string>
     <string name="title_channel_detail">Channel Detail</string>
+    <string name="none_added">No Servers Added\nAdd some using the button below</string>
+    <string name="nickname_hint">Nickname</string>
+    <string name="server_ip_hint">Server IP</string>
+    <string name="enter_message_hint">Enter Message</string>
+    <string name="sendername_placeholder">SenderName</string>
+    <string name="message_placeholder">Lorem Ipsum Lorem Ipsum</string>
+    <string name="time_placeholder">4/7/2017 06:00 PM</string>
 </resources>

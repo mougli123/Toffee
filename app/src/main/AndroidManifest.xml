@@ -20,13 +20,13 @@
         <activity
             android:name=".ChannelListActivity"
             android:label="@string/title_channel_list"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         <activity
-            android:name=".ChannelDetailActivity"
+            android:name=".ConversationActivity"
             android:label="@string/title_channel_detail"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

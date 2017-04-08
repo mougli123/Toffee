@@ -4,26 +4,56 @@ package com.iodynelabs.toffee;
  * Created by Alejandro on 4/7/2017.
  */
 
+/**
+ * Data class for storing a message.
+ */
 public class Message {
-    private String sender;
-    private String message;
-    private String time;
+    /**
+     * Who sent the message.
+     */
+    private final String sender;
 
+    /**
+     * The content of the message.
+     */
+    private final String message;
+
+    /**
+     * Timestamp of the message.
+     */
+    private final String time;
+
+    /**
+     * Constructor for a message.
+     *
+     * @param s Sender.
+     * @param m Message.
+     * @param t Time.
+     */
     public Message(String s, String m, String t){
         sender = s;
         message = m;
         time = t;
     }
 
-    public String getMessage() {
+    /**
+     * @return Message contents.
+     */
+    String getMessage() {
         return message;
     }
 
-    public String getSender() {
+    /**
+     * @return Sender.
+     */
+    String getSender() {
         return sender;
     }
 
-    public String getTime() {
+    /**
+     * @return Timestamp.
+     */
+    String getTime() {
         return time;
     }
 }

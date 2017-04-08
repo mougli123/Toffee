@@ -1,9 +1,6 @@
 package com.iodynelabs.toffee;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -14,44 +11,66 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
- * A fragment representing a single Channel detail screen.
- * This fragment is either contained in a {@link ChannelListActivity}
- * in two-pane mode (on tablets) or a {@link ChannelDetailActivity}
- * on handsets.
+ * The actual content of the Conversation Screen.
  */
 public class ConversationFragment extends Fragment implements ConversationHandler.ConversationCallback{
     /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
+     * Static variable containing a tag for use in persisting data between activity and fragment.
+     */
+    public static final String SERVER_ID = "server_id";
+    /**
+     * Static variable containing a tag for use in persisting data between activity and fragment.
+     */
+    public static final String CHANNEL_ID = "channel_id";
+    /**
+     * Static variable used for debug purposes.
      */
     private static final String LOG_TAG = ConversationFragment.class.getSimpleName();
-    public static final String SERVER_ID = "server_id";
-    public static final String CHANNEL_ID = "channel_id";
-
-    private RecyclerView messageLog;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
+    /**
+     * Chat history.
+     */
     List<Message> messages;
+    /**
+     * Server currently in.
+     */
     Server currentServer;
+    /**
+     * Channel index user is currently in.
+     */
     int currentChannel;
+    /**
+     * Class where all the networking work gets done since Android does not allow networking on the UI thread.
+     */
     ConversationHandler handler;
+    /**
+     * Thread where all the networking is done on.
+     */
     Thread handlerThread;
-    Handler threadHandler;
-
+    /**
+     * Send button.
+     */
     FloatingActionButton fab;
+    /**
+     * Message text box.
+     */
     EditText editor;
+    /**
+     * Chat history controller.
+     */
+    private RecyclerView messageLog;
+    /**
+     * Controls how the chat history is displayed.
+     */
+    private RecyclerView.Adapter mAdapter;
 
 
     /**
@@ -61,6 +80,9 @@ public class ConversationFragment extends Fragment implements ConversationHandle
     public ConversationFragment() {
     }
 
+    /**
+     * Called when the fragment is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,9 +95,12 @@ public class ConversationFragment extends Fragment implements ConversationHandle
                 currentChannel = 0;
         }
 
-        ((ChannelDetailActivity)getActivity()).setChild(this);
+        ((ConversationActivity) getActivity()).setChild(this);
     }
 
+    /**
+     * Called when the fragment is made visible.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -93,17 +118,15 @@ public class ConversationFragment extends Fragment implements ConversationHandle
         messageLog.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         messageLog.setLayoutManager(mLayoutManager);
 
         messageLog.setAdapter(mAdapter);
         messageLog.scrollToPosition(messages.size()-1);
 
         handler = new ConversationHandler(currentServer, currentChannel, this);
-        threadHandler = new Handler();
         handlerThread = new Thread(handler);
-        handlerThread.start();
-        //handler.connect();
+        connect();
 
         fab = (FloatingActionButton) rootView.findViewById(R.id.sendText);
         editor = (EditText) rootView.findViewById(R.id.editor_text);
@@ -122,16 +145,28 @@ public class ConversationFragment extends Fragment implements ConversationHandle
         return rootView;
     }
 
+    /**
+     * Send a message to the current channel.
+     */
     void sendMessage(Message msg){
         Log.w(LOG_TAG, "Preparing to send: " + msg.getMessage());
+        if (msg.getMessage().equals("")) return;
         handler.sendMessage(msg);
         messages.add(msg);
         updateAdapter();
+        messageLog.scrollToPosition(messages.size() - 1);
     }
 
+    /**
+     * Update the chat history.
+     */
     void updateAdapter(){
         mAdapter.notifyDataSetChanged();
     }
+
+    /**
+     * Create fake debug messages to pupulate the list to test the UI.
+     */
     void createDummyMessages(){
         Log.w(LOG_TAG, "Present");
         for (int i = 0; i < 30; i++){
@@ -143,6 +178,9 @@ public class ConversationFragment extends Fragment implements ConversationHandle
         }
     }
 
+    /**
+     * Update the chat history to reflect any new messages.
+     */
     public void receivedMessage(Message message){
         messages.add(message);
         getActivity().runOnUiThread(new Runnable() {
@@ -155,6 +193,9 @@ public class ConversationFragment extends Fragment implements ConversationHandle
 
     }
 
+    /**
+     * Show a message in a Toast dialog (the text that appears briefly onscreen).
+     */
     public void toastMessage(final String msg){
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -165,37 +206,40 @@ public class ConversationFragment extends Fragment implements ConversationHandle
 
     }
 
+    /**
+     * Disconnect from the channel.
+     */
     public void disconnect(){
         Log.w(LOG_TAG, "Ordering stop");
         handler.stop();
     }
+
+    /**
+     * Connect to the channel.
+     */
+    public void connect() {
+        Log.w(LOG_TAG, "Ordering connect");
+
+        handlerThread.start();
+    }
+
+    /**
+     * Callback from the network thread to notify a message has been received so it can be added to the history appropriately.
+     *
+     * @param msg
+     */
     @Override
     public void messageReceived(Message msg) {
         receivedMessage(msg);
     }
 
+    /**
+     * Class for the adapter that controls how the chat history is displayed.
+     */
     private class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationHolder> {
 
-        private List<Message> mDataset;
         Server server;
-
-        class ConversationHolder extends RecyclerView.ViewHolder {
-            // each data item is just a string in this case
-            TextView sender;
-            TextView message;
-            TextView time;
-
-            Message msg;
-            View mView;
-
-            ConversationHolder(View view) {
-                super(view);
-                mView = view;
-                sender = (TextView) view.findViewById(R.id.sender_text);
-                message = (TextView) view.findViewById(R.id.message_content);
-                time = (TextView) view.findViewById(R.id.time_text);
-            }
-        }
+        private List<Message> mDataset;
 
         ConversationAdapter(List<Message> data, Server srv){
             mDataset = data;
@@ -232,7 +276,23 @@ public class ConversationFragment extends Fragment implements ConversationHandle
         public int getItemCount() {
             return mDataset.size();
         }
+
+        class ConversationHolder extends RecyclerView.ViewHolder {
+            // each data item is just a string in this case
+            TextView sender;
+            TextView message;
+            TextView time;
+
+            Message msg;
+            View mView;
+
+            ConversationHolder(View view) {
+                super(view);
+                mView = view;
+                sender = (TextView) view.findViewById(R.id.sender_text);
+                message = (TextView) view.findViewById(R.id.message_content);
+                time = (TextView) view.findViewById(R.id.time_text);
+            }
+        }
     }
-
-
 }

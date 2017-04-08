@@ -8,19 +8,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Container class to house channel information
+ * Container class to house channel information.
  */
-public class Channel implements Parcelable{
-    String channelName;
-
-    public Channel(Server parent, String name){
-        channelName = name;
-    }
-
-    protected Channel(Parcel in) {
-        channelName = in.readString();
-    }
-
+class Channel implements Parcelable {
+    /**
+     * Also used for saving and loading instances of the Channel object.
+     */
     public static final Creator<Channel> CREATOR = new Creator<Channel>() {
         @Override
         public Channel createFromParcel(Parcel in) {
@@ -32,17 +25,43 @@ public class Channel implements Parcelable{
             return new Channel[size];
         }
     };
+    /**
+     * Name of the channel.
+     */
+    String channelName;
 
+    /**
+     * Initialize a Channel object with the given name.
+     */
+    Channel(String name) {
+        channelName = name;
+    }
 
-    public String getChannelName(){
+    /**
+     * Initialize a Channel object from a Parcelable object, used when saving and loading objects.
+     */
+    private Channel(Parcel in) {
+        channelName = in.readString();
+    }
+
+    /**
+     * @return Name of the channel.
+     */
+    String getChannelName() {
         return channelName;
     }
 
+    /**
+     * Used for saving and loading parcelable instances of Channel.
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * Save the object to a Parcel.
+     */
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(channelName);
