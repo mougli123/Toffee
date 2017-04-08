@@ -20,6 +20,14 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
+
+        Server srv;
+
+        if (savedInstanceState == null && getIntent().hasExtra(ConversationFragment.SERVER_ID)) {
+            srv = getIntent().getParcelableExtra(ConversationFragment.SERVER_ID);
+            if (getIntent().hasExtra(ConversationFragment.CHANNEL_ID))
+                setTitle(srv.getChannel(getIntent().getIntExtra(ConversationFragment.CHANNEL_ID, 0)).getChannelName());
+        }
     }
 
     /**
