@@ -22,6 +22,9 @@ import java.util.List;
 
 import io.paperdb.Paper;
 
+/**
+ * Starting point of the application and server list
+ */
 public class MainActivity extends AppCompatActivity {
     /**
      * Tag used for debug messages.
