@@ -268,6 +268,8 @@ public class ConversationFragment extends Fragment implements ConversationHandle
 
             if (mDataset.get(position).getSender().equals(server.getNickname()))
                 holder.sender.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+            else
+                holder.sender.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
 
         }
 
