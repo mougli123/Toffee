@@ -1,5 +1,8 @@
 package com.iodynelabs.toffee;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +13,7 @@ import java.util.List;
 /**
  * Container class to house server information such as name and channels
  */
-public class Server {
+public class Server implements Parcelable{
 
     private String serverName;
     private List<Channel> channels;
@@ -26,6 +29,26 @@ public class Server {
         serverName = name;
         nickname = nick;
     }
+
+    protected Server(Parcel in) {
+        channels = new ArrayList<>();
+        in.readTypedList(channels, Channel.CREATOR);
+        serverName = in.readString();
+        status = in.readByte() != 0;
+        nickname = in.readString();
+    }
+
+    public static final Creator<Server> CREATOR = new Creator<Server>() {
+        @Override
+        public Server createFromParcel(Parcel in) {
+            return new Server(in);
+        }
+
+        @Override
+        public Server[] newArray(int size) {
+            return new Server[size];
+        }
+    };
 
     /**
      * Set nickname after creating
@@ -79,6 +102,12 @@ public class Server {
     }
 
     /**
+     * Get channel at the specified index
+     */
+    public Channel getChannel(int index){
+        return channels.get(index);
+    }
+    /**
      *
      * @return Number of channels the server has
      */
@@ -100,5 +129,19 @@ public class Server {
      */
     public boolean getStatus(){
         return status;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+
+        parcel.writeTypedList(channels);
+        parcel.writeString(serverName);
+        parcel.writeByte((byte) (status ? 1 : 0));
+        parcel.writeString(nickname);
     }
 }

@@ -3,8 +3,8 @@
     <string name="server_list_title">Server List</string>
     <string name="server_name_placeholder">SERVER NAME GOES HERE</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="channels_text">Channels:</string>
     <string name="nickname_text">Nickname:</string>
     <string name="nick_placeholder">SuperCoolNickName</string>
-    <string name="channel_placeholder">10</string>
+    <string name="title_channel_list">Channels</string>
+    <string name="title_channel_detail">Channel Detail</string>
 </resources>

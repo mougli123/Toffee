@@ -1,21 +1,34 @@
 package com.iodynelabs.toffee;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.pircbotx.Configuration;
+import org.pircbotx.PircBotX;
+import org.pircbotx.exception.IrcException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.paperdb.Paper;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -26,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView noneAdded;
 
     private List<Server> mData;
-    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +46,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setTitle(getResources().getString(R.string.server_list_title));
 
-        noneAdded = (TextView) findViewById(R.id.none_added);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+        // Initialize file IO
+        Paper.init(this);
 
-                initiateRefresh();
-            }
-        });
+        noneAdded = (TextView) findViewById(R.id.none_added);
 
         mData = new ArrayList<>();
         if (mData.size() == 0) noneAdded.setVisibility(View.VISIBLE);
@@ -62,10 +68,33 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new ServerListAdapter(mData);
         mRecyclerView.setAdapter(mAdapter);
 
+
+        mRecyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_server_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+            }
+        });
+
         createTestingData();
+
     }
 
     private void createTestingData(){
+        Server te = new Server("192.168.21.115", "Sylver");
+        te.addChannel("woot");
+        Log.w(LOG_TAG, "Channels: " + te.getChannelCount());
+        mData.add(te);
         for (int i = 0; i < 10; i++){
             Server t = new Server("Server " + i, "Sylver" + i);
             for (int j = 0; j <= ((int)(Math.random()*10))+1; j++){
@@ -87,85 +116,82 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        /*switch (item.getItemId()) {
             case R.id.menu_refresh:
                 Log.i(LOG_TAG, "Refresh menu item selected");
 
-                // We make sure that the SwipeRefreshLayout is displaying it's refreshing indicator
-                if (!isRefreshing()) {
-                    setRefreshing(true);
-                }
-
-                // Start our refresh background task
-                initiateRefresh();
                 return true;
         }
-
+*/
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Returns whether the {@link android.support.v4.widget.SwipeRefreshLayout} is currently
-     * refreshing or not.
-     */
-    private boolean isRefreshing() {
-        return mSwipeRefreshLayout.isRefreshing();
-    }
+    private class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.ViewHolder> {
 
-    /**
-     * Set whether the {@link android.support.v4.widget.SwipeRefreshLayout} should be displaying
-     * that it is refreshing or not.
-     */
-    private void setRefreshing(boolean refreshing) {
-        mSwipeRefreshLayout.setRefreshing(refreshing);
-    }
+        private List<Server> mDataset;
 
-    private void onRefreshComplete(List<Server> result) {
-        Log.i(LOG_TAG, "onRefreshComplete");
+        class ViewHolder extends RecyclerView.ViewHolder {
+            // each data item is just a string in this case
+            TextView serverName;
+            TextView channels;
+            TextView nickname;
+            ImageView serverStatus;
 
-        mData = result;
-        mAdapter.notifyDataSetChanged();
+            Server server;
+            View mView;
 
-        // Stop the refreshing indicator
-        setRefreshing(false);
-    }
-
-    private void initiateRefresh() {
-        Log.i(LOG_TAG, "initiateRefresh");
-
-        /**
-         * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
-         */
-        new CheckServerStatus().execute();
-    }
-
-    // TODO: Implement server status checks
-    private class CheckServerStatus extends AsyncTask<Void, Void, List<Server>>{
-
-        static final int TASK_DURATION = 3 * 1000; // 3 seconds
-
-        @Override
-        protected List<Server> doInBackground(Void... voids) {
-            // Sleep for a small amount of time to simulate a background-task
-            try {
-                Thread.sleep(TASK_DURATION);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            ViewHolder(View view) {
+                super(view);
+                mView = view;
+                serverName = (TextView) view.findViewById(R.id.server_name);
+                nickname = (TextView) view.findViewById(R.id.list_nick);
             }
-
-            List<Server> temp = mData;
-            for (int i = 0; i < temp.size(); i++){
-                temp.get(i).setStatus(!temp.get(i).getStatus());
-            }
-            return temp;
         }
 
-        @Override
-        protected void onPostExecute(List<Server> result) {
-            super.onPostExecute(result);
+        ServerListAdapter(List<Server> data){
+            mDataset = data;
+        }
 
-            // Tell the Fragment that the refresh has completed
-            onRefreshComplete(result);
+        // Create new views (invoked by the layout manager)
+        @Override
+        public ServerListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                               int viewType) {
+            // create a new view
+            View itemView = LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.server_list_card, parent, false);
+            // set the view's size, margins, paddings and layout parameters
+
+            return new ViewHolder(itemView);
+        }
+
+        // Replace the contents of a view (invoked by the layout manager)
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, int position) {
+            holder.serverName.setText(mDataset.get(position).getServerName());
+            //holder.channels.setText(""+mDataset.get(position).getChannelCount());
+            holder.nickname.setText(mDataset.get(position).getNickname());
+
+            holder.server = mDataset.get(position);
+
+            holder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(view.getContext(), ChannelListActivity.class);
+
+                    // Add current server to next page so it can display all the channels
+                    intent.putExtra(ChannelListActivity.SERVER_ID, holder.server);
+
+                    // Start the activity
+                    startActivity(intent);
+                }
+            });
+        }
+
+        // Return the size of your dataset (invoked by the layout manager)
+        @Override
+        public int getItemCount() {
+            return mDataset.size();
         }
     }
 }
