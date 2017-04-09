@@ -75,7 +75,6 @@ class ConversationHandler implements Runnable {
         // Moves the current Thread into the background
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 
-        bot = new PircBotX(templateConfig.buildForServer(currentServer.getServerName()));
 
         try {
             bot.startBot();
