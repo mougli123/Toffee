@@ -4,7 +4,7 @@
     <string name="server_name_placeholder">SERVER NAME GOES HERE</string>
     <string name="menu_refresh">Refresh</string>
     <string name="nickname_text">Nickname:</string>
-    <string name="nick_placeholder">SuperCoolNickName</string>
+    <string name="nick_placeholder">Placeholder</string>
     <string name="title_channel_list">Channels</string>
     <string name="title_channel_detail">Channel Detail</string>
     <string name="none_added">No Servers Added\nAdd some using the button below</string>

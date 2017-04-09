@@ -31,6 +31,7 @@
                 android:padding="16dp"
                 android:text="@string/server_name_placeholder"
                 android:textAlignment="viewStart"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
                 android:textColor="#ffffff"
                 android:textSize="22sp" />
 
