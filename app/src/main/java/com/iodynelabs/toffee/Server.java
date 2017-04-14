@@ -24,7 +24,6 @@ public class Server implements Parcelable{
     };
     private String serverName;
     private List<Channel> channels;
-    private boolean status;
     private String nickname;
 
     /**
@@ -41,7 +40,6 @@ public class Server implements Parcelable{
         channels = new ArrayList<>();
         in.readTypedList(channels, Channel.CREATOR);
         serverName = in.readString();
-        status = in.readByte() != 0;
         nickname = in.readString();
     }
 
@@ -116,23 +114,6 @@ public class Server implements Parcelable{
         return channels.size();
     }
 
-    /**
-     *
-     * @return Server status: true=live, false=error
-     */
-    public boolean getStatus(){
-        return status;
-    }
-
-    /**
-     * Set current server status: true=live, false=error
-     *
-     * @param status Status to set to
-     */
-    void setStatus(boolean status) {
-        this.status = status;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -143,7 +124,6 @@ public class Server implements Parcelable{
 
         parcel.writeTypedList(channels);
         parcel.writeString(serverName);
-        parcel.writeByte((byte) (status ? 1 : 0));
         parcel.writeString(nickname);
     }
 }
