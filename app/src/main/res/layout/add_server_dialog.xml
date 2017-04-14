@@ -14,7 +14,7 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="@string/server_ip_hint"
-        android:inputType="text" />
+        android:inputType="textUri" />
 
     <EditText
         android:id="@+id/nick_input"
